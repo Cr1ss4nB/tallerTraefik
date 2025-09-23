@@ -1,0 +1,4 @@
+node_modules
+.env
+auth/
+neo4j_data
