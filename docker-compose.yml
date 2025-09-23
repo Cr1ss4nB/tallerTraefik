@@ -10,14 +10,17 @@ services:
       - "80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./auth:/auth:ro
     networks:
       - appnet
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`ops.localhost`) && PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.traefik.rule=Host(`ops.localhost`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=dashboard-auth"
-
+      - "traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.usersfile=/auth/.htpasswd"
+      - "traefik.http.routers.traefik.middlewares=dashboard-stripprefix,dashboard-auth"
   neo4j:
     image: neo4j:5.20
     container_name: neo4j
@@ -46,7 +49,10 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.localhost`)"
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.services.api.loadbalancer.server.port=3000"
-
+      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/v1"
+      - "traefik.http.middlewares.api-ratelimit.ratelimit.average=15"
+      - "traefik.http.middlewares.api-ratelimit.ratelimit.burst=30"
+      - "traefik.http.routers.api.middlewares=api-strip,api-ratelimit"
 networks:
   appnet:
 

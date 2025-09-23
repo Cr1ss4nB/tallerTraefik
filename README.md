@@ -1,5 +1,7 @@
 # Taller Traefik
 
+- **Cristian Andrés Basto Largo - 202010495**
+
 ## Punto 1: Topología y redes
 
 ### Diagrama simple
@@ -95,3 +97,76 @@ volumes:
 - [x] El dashboard responde en `http://ops.localhost/dashboard/` (actualmente 404 hasta aplicar stripPrefix).  
 
 ![404 not found](./images/404-nofound.png)
+
+---
+
+## Punto 3: Middlewares
+
+### Cambios realizados
+
+1. **BasicAuth para el Dashboard**
+   - Se creó la carpeta `auth/` y dentro el archivo `.htpasswd` con credenciales para proteger el acceso.
+   - Se añadieron labels en `docker-compose.yml` para aplicar el middleware `dashboard-auth`.
+
+   ```bash
+   # Crear archivo .htpasswd (ejemplo con usuario admin)
+   mkdir -p auth
+   htpasswd -cB auth/.htpasswd admin
+   ```
+Luego pide la contraseña para el usuario definido (admin). 
+
+# docker-compose.yml - servicio traefik
+```labels:
+  - "traefik.http.middlewares.dashboard-auth.basicauth.usersfile=/auth/.htpasswd"
+  - "traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard"
+  - "traefik.http.routers.traefik.middlewares=dashboard-stripprefix,dashboard-auth"
+```
+
+2. **stripPrefix para el Dashboard**
+
+- Se configuró stripPrefix para que el dashboard interno funcione correctamente en la ruta /dashboard/.
+
+3. **rateLimit para la API**
+
+- Se añadió un middleware de rateLimit para limitar peticiones.
+
+- Configuración aplicada en docker-compose.yml:
+
+# docker-compose.yml - servicio api
+```labels:
+  - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/v1"
+  - "traefik.http.middlewares.api-ratelimit.ratelimit.average=15"
+  - "traefik.http.middlewares.api-ratelimit.ratelimit.burst=30"
+  - "traefik.http.routers.api.middlewares=api-strip,api-ratelimit"
+```
+
+- Se probó con un bucle curl:
+
+```
+for i in $(seq 1 200); do \
+  curl -s -o /dev/null -w "%{http_code}\n" http://api.localhost/health & \
+done; wait
+```
+![bucle curl](./images/bucle-curl.png)
+
+Se ven bastantes 200 pero luego empiezan a aparecer respuestas bloqueadas (429 Too Many Requests).
+
+Se verifica con un curl a *http://ops.localhost/dashboard/*
+
+![curl ops.localhost](./images/curl-opslocalhost.png)
+
+Se ve el 401 Unauthorized debido a que requiere la autenticación del usuario antes de iniciar. Requiere las credenciales.
+
+Se ingresa a la dirección http://localhost/dashboard:
+
+![login](./images/login.png)
+
+Una vez ingresadas las credenciales correctas ya definidas anteriormente se logra la sesión:
+
+![dashboard](./images/traefik-dashboard.png)
+
+Se miran tanto los routers, services y los middlewares. Confirmar que los detectó Traefik:
+
+![routers](./images/routers.png)
+![services](./images/services.png)
+![middlewares](./images/middlewares.png)
