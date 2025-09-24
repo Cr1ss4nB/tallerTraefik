@@ -205,3 +205,49 @@ Tenemos la salida:
 Luego en el Dashboard de Traefik en la sección de Services verificamos que diga en el load balancer que nuestra api docker tiene dos servidores:
 
 ![servicio load balancer](./images/servicio-loadbalancer.png)
+
+---
+
+## Punto 6: Observabilidad y Pruebas
+
+- Primero verificamos el endpoint de /health en nuestra API:
+
+![curl health](./images/curl-health-punto6.png)
+
+- Con nuestra base de datos artwork_data.csv que he utilizado en trabajos anteriores se hizo la prueba de listar/crear en nuestra API.
+
+- *Listamos con una petición GET nuestros artworks*
+
+![listar](./images/peticion-get.png)
+
+- *Creamos un registro para nuestra base de datos de artistas*
+
+![crear](./images/peticion-post.png)
+
+- Solo faltaría comprobar nuevamente el Dashboard de Traefik. 
+
+**Routers**
+
+![routers](./images/dashboard-routers.png)
+
+**Services**
+
+![services](./images/dashboard-services.png)
+
+**Middlewares**
+
+![middlewares](./images/dashboard-middlewares.png)
+
+---
+
+## HOST Utilizados:
+
+- http:/api.localhost -> API Express conectada a Neo4j
+1. /health -> endpoint de verificación
+2.  /artworks -> Base de datos utilizada para hacer peticiones GET y POST (listar y crear respectivamente)
+
+- http://ops.localhost/dashboard/ -> Dashboard de Traefik protegido con auth básica
+
+---
+
+# a

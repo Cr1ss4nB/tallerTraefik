@@ -28,7 +28,7 @@ services:
       - NEO4J_AUTH=neo4j/test12345
     volumes:
       - neo4j_data:/data
-      - ./imports:/imports
+      - ./imports:/import
     networks:
       - appnet
 
@@ -50,10 +50,9 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.localhost`)"
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.services.api.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/v1"
       - "traefik.http.middlewares.api-ratelimit.ratelimit.average=5"
       - "traefik.http.middlewares.api-ratelimit.ratelimit.burst=10"
-      - "traefik.http.routers.api.middlewares=api-strip,api-ratelimit"
+      - "traefik.http.routers.api.middlewares=api-ratelimit"
 networks:
   appnet:
 
