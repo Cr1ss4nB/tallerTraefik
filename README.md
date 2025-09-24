@@ -170,3 +170,39 @@ Se miran tanto los routers, services y los middlewares. Confirmar que los detect
 ![routers](./images/routers.png)
 ![services](./images/services.png)
 ![middlewares](./images/middlewares.png)
+
+---
+
+## Punto 4: Balanceo de réplicas de la API
+
+### Cambios realizados
+
+- Se elminó container_name del servicio api en docker-compose.yml para permitir múltiples instancias. 
+- El endpoint raíz (/) devuelve el *ID del contenedor* (os.hostname()), lo cual permite verificar que la réplica responde.
+
+Se levantan dos instancias de la API -1 y -2. Verificado con el comando:
+
+```for i in $(seq 1 10); do curl http://api.localhost/; echo; done
+ ```
+Tenemos la salida: 
+
+![balanceo_prueba](./images/balanceo-prueba.png)
+
+---
+
+## Punto 5: Descubrimiento automático
+
+- La API está configurada con labels de Traefik (routers, middlewares y services) directamente en `docker-compose.yml`.
+- No se utilizaron archivos de configuración estáticos.
+- Al escalar la API con `--scale`, Traefik detecta automáticamente las nuevas réplicas.
+
+- Se levantaron **2 réplicas de la API** usando:
+  ```bash
+  docker compose up -d --scale api=2 --build
+```
+
+![replicas](./images/replicas.png)
+
+Luego en el Dashboard de Traefik en la sección de Services verificamos que diga en el load balancer que nuestra api docker tiene dos servidores:
+
+![servicio load balancer](./images/servicio-loadbalancer.png)

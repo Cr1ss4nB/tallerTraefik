@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Endpoint de prueba
 app.get("/", (req, res) => {
-  res.json({ message: "API funcionando", host: os.hostname() });
+  res.json({ message: "API funcionando", host: os.hostname(), instance: process.env.HOSTNAME || "api" });
 });
 
 // Endpoint de health check
