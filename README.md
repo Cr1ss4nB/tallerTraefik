@@ -198,8 +198,7 @@ Tenemos la salida:
 
 - Se levantaron **2 réplicas de la API** usando:
   ```bash
-  docker compose up -d --scale api=2 --build
-```
+  docker compose up -d --scale api=2 --build ```
 
 ![replicas](./images/replicas.png)
 
