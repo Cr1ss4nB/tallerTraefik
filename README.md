@@ -4,15 +4,6 @@
 
 ## Punto 1: Topología y redes
 
-### Diagrama simple
-
-Traefik --(red appnet)--> API (Express)
-└-> Neo4j (solo interno, sin exponer al host)
-
-### Hosts usados
-- api.localhost
-- ops.localhost
-
 ### Comprobaciones
 
 docker-compose.yml: 
