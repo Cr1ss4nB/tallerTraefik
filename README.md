@@ -255,7 +255,8 @@ Luego en el Dashboard de Traefik en la sección de Services verificamos que diga
 
 - Diagrama de la solución:
 
-![diagrama](./images/diagrama.png)
+<img width="913" height="797" alt="diagrama" src="https://github.com/user-attachments/assets/734368a0-5f1f-41f2-867e-815ac33fb90b" />
+
 
 La solución implementada se basa en una arquitectura donde Traefik actúa como gateway de entrada, gestionando el enrutamiento de peticiones hacia la API y el dashboard. Las solicitudes a api.localhost se balancean entre dos réplicas de la API en Express, que a su vez se conectan internamente a la base de datos Neo4j usando la red interna appnet (sin exponer puertos al host). Los middlewares de RateLimit, Auth y StripPrefix se aplican en Traefik para añadir seguridad y control al tráfico. Por otro lado, el dashboard de Traefik se accede únicamente en ops.localhost/dashboard/ y protegido con autenticación básica, evitando accesos inseguros.
 
@@ -263,10 +264,13 @@ La solución implementada se basa en una arquitectura donde Traefik actúa como 
 # Reflexión técnica
 
 **¿Qué aporta Traefik frente a mapear puertos directamente?**
+
 Traefik permite centralizar el enrutamiento de servicios y gestionar múltiples aplicaciones en un mismo host sin necesidad de exponer cada puerto manualmente. Además, ofrece descubrimiento automático de contenedores, balanceo de carga integrado y soporte para middlewares que enriquecen la seguridad y el control del tráfico. Esto simplifica bastante la administración comparado con abrir puertos de cada servicio de manera independiente.
 
 **¿Qué middlewares usaría en producción y por qué?**
+
 En un entorno real usaría BasicAuth (o idealmente un sistema de autenticación más robusto como OIDC) para proteger recursos sensibles, RateLimit para mitigar abusos o ataques de denegación de servicio, y StripPrefix en caso de usar rutas con prefijos en las APIs. Estos middlewares permiten endurecer la seguridad y dar flexibilidad en cómo se publican los servicios hacia los usuarios.
 
 **Riesgos de dejar el dashboard “abierto” y cómo mitigarlos**
+
 Exponer el dashboard sin protección representa un riesgo alto, ya que cualquier persona podría ver la topología de los servicios e incluso descubrir endpoints internos. Esto podría ser aprovechado para ataques dirigidos. Para mitigarlo, se debe proteger siempre con autenticación, exponerlo solo a redes internas, o incluso deshabilitarlo en producción y gestionarlo con archivos de configuración seguros.
