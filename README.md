@@ -244,8 +244,8 @@ Luego en el Dashboard de Traefik en la sección de Services verificamos que diga
 
 - http://api.localhost -> API Express conectada a Neo4j
 
-	1. /health -> endpoint de verificación
-	2.  /artworks -> Base de datos utilizada para hacer peticiones GET y POST (listar y crear respectivamente)
+	- /health -> endpoint de verificación
+	-  /artworks -> Base de datos utilizada para hacer peticiones GET y POST (listar y crear respectivamente)
 
 - http://ops.localhost/dashboard/ -> Dashboard de Traefik protegido con auth básica
 
